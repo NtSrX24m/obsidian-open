@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Obsidian を開いています…</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --card: #1b1f27;
+      --border: #2c3340;
+      --text: #e6ebf2;
+      --muted: #9aa5b5;
+      --accent: #7c5cff;
+      --accent-hover: #9074ff;
+      --error: #ff7b7b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+    p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .path-box {
+      padding: 12px 14px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      word-break: break-all;
+      margin-bottom: 20px;
+    }
+    .path-label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .btn {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      padding: 13px 18px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 10px;
+      font-size: 0.98rem;
+      transition: background 0.15s ease;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn.disabled {
+      pointer-events: none;
+      opacity: 0.45;
+    }
+    .error {
+      color: var(--error);
+      font-size: 0.9rem;
+      margin-top: 12px;
+      display: none;
+    }
+    .note {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1 id="heading">Obsidian を開いています…</h1>
+    <p id="subtitle">自動でアプリが起動しない場合は、下のボタンをタップしてください。</p>
+    <div class="path-box">
+      <span class="path-label" id="vault-label">Vault</span>
+      <span id="file-path">読み込み中…</span>
+    </div>
+    <a id="open-btn" class="btn disabled" href="#">Obsidian で開く</a>
+    <div id="error-msg" class="error"></div>
+    <p class="note">このページは URL の # 以降をブラウザ内のみで処理するため、ノート名がサーバーへ送信されることはありません。</p>
+  </main>
+
+  <script>
+    (function () {
+      var hashRaw = window.location.hash ? window.location.hash.slice(1) : "";
+      var queryRaw = window.location.search ? window.location.search.slice(1) : "";
+      var params = new URLSearchParams(hashRaw || queryRaw);
+
+      var vault = (params.get("vault") || "").trim();
+      var file = (params.get("file") || "").trim();
+
+      var headingEl = document.getElementById("heading");
+      var subtitleEl = document.getElementById("subtitle");
+      var vaultEl = document.getElementById("vault-label");
+      var fileEl = document.getElementById("file-path");
+      var btnEl = document.getElementById("open-btn");
+      var errEl = document.getElementById("error-msg");
+
+      if (!vault || !file) {
+        headingEl.textContent = "ノート指定が見つかりません";
+        subtitleEl.textContent = "URL に vault と file パラメータが含まれていません。";
+        fileEl.textContent = "-";
+        errEl.style.display = "block";
+        errEl.textContent = "例: #vault=MyVault&file=Notes%2FExample";
+        return;
+      }
+
+      var obsidianUrl =
+        "obsidian://open?vault=" +
+        encodeURIComponent(vault) +
+        "&file=" +
+        encodeURIComponent(file);
+
+      vaultEl.textContent = "Vault: " + vault;
+      fileEl.textContent = file;
+      btnEl.href = obsidianUrl;
+      btnEl.classList.remove("disabled");
+
+      try {
+        window.location.replace(obsidianUrl);
+      } catch (_e) {
+        window.location.href = obsidianUrl;
+      }
+    })();
+  </script>
+</body>
+</html>
